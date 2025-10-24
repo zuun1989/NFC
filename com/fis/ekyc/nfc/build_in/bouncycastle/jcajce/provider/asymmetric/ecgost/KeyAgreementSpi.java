@@ -1,0 +1,109 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.asymmetric.ecgost;
+
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x9.X9IntegerConverter;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.DerivationFunction;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.agreement.ECVKOAgreement;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.digests.GOST3411Digest;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.params.ECDomainParameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.params.ParametersWithUKM;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.asymmetric.util.BaseAgreementSpi;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.spec.UserKeyingMaterialSpec;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jce.interfaces.ECPrivateKey;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jce.interfaces.ECPublicKey;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.spec.AlgorithmParameterSpec;
+
+public class KeyAgreementSpi extends BaseAgreementSpi {
+    private static final X9IntegerConverter converter = new X9IntegerConverter();
+    private ECVKOAgreement agreement;
+    private String kaAlgorithm;
+    private ECDomainParameters parameters;
+    private byte[] result;
+
+    public static class ECVKO extends KeyAgreementSpi {
+        public ECVKO() {
+            super("ECGOST3410", new ECVKOAgreement(new GOST3411Digest()), (DerivationFunction) null);
+        }
+    }
+
+    public KeyAgreementSpi(String str, ECVKOAgreement eCVKOAgreement, DerivationFunction derivationFunction) {
+        super(str, derivationFunction);
+        this.kaAlgorithm = str;
+        this.agreement = eCVKOAgreement;
+    }
+
+    public static AsymmetricKeyParameter generatePublicKeyParameter(PublicKey publicKey) throws InvalidKeyException {
+        if (publicKey instanceof BCECPublicKey) {
+            return ((BCECGOST3410PublicKey) publicKey).engineGetKeyParameters();
+        }
+        return ECUtil.generatePublicKeyParameter(publicKey);
+    }
+
+    private static String getSimpleName(Class cls) {
+        String name = cls.getName();
+        return name.substring(name.lastIndexOf(46) + 1);
+    }
+
+    private void initFromKey(Key key, AlgorithmParameterSpec algorithmParameterSpec) throws InvalidKeyException {
+        byte[] bArr;
+        if (key instanceof PrivateKey) {
+            ECPrivateKeyParameters eCPrivateKeyParameters = (ECPrivateKeyParameters) ECUtil.generatePrivateKeyParameter((PrivateKey) key);
+            this.parameters = eCPrivateKeyParameters.getParameters();
+            if (algorithmParameterSpec instanceof UserKeyingMaterialSpec) {
+                bArr = ((UserKeyingMaterialSpec) algorithmParameterSpec).getUserKeyingMaterial();
+            } else {
+                bArr = null;
+            }
+            this.ukmParameters = bArr;
+            this.agreement.init(new ParametersWithUKM(eCPrivateKeyParameters, bArr));
+            return;
+        }
+        throw new InvalidKeyException(this.kaAlgorithm + " key agreement requires " + getSimpleName(ECPrivateKey.class) + " for initialisation");
+    }
+
+    public byte[] calcSecret() {
+        return this.result;
+    }
+
+    public Key engineDoPhase(Key key, boolean z) throws InvalidKeyException, IllegalStateException {
+        if (this.parameters == null) {
+            throw new IllegalStateException(this.kaAlgorithm + " not initialised.");
+        } else if (!z) {
+            throw new IllegalStateException(this.kaAlgorithm + " can only be between two parties.");
+        } else if (key instanceof PublicKey) {
+            try {
+                this.result = this.agreement.calculateAgreement(generatePublicKeyParameter((PublicKey) key));
+                return null;
+            } catch (Exception e) {
+                throw new InvalidKeyException("calculation failed: " + e.getMessage()) {
+                    public Throwable getCause() {
+                        return e;
+                    }
+                };
+            }
+        } else {
+            throw new InvalidKeyException(this.kaAlgorithm + " key agreement requires " + getSimpleName(ECPublicKey.class) + " for doPhase");
+        }
+    }
+
+    public void engineInit(Key key, AlgorithmParameterSpec algorithmParameterSpec, SecureRandom secureRandom) throws InvalidKeyException, InvalidAlgorithmParameterException {
+        if (algorithmParameterSpec == null || (algorithmParameterSpec instanceof UserKeyingMaterialSpec)) {
+            initFromKey(key, algorithmParameterSpec);
+            return;
+        }
+        throw new InvalidAlgorithmParameterException("No algorithm parameters supported");
+    }
+
+    public void engineInit(Key key, SecureRandom secureRandom) throws InvalidKeyException {
+        initFromKey(key, (AlgorithmParameterSpec) null);
+    }
+}

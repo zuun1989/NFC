@@ -1,0 +1,51 @@
+package com.google.android.gms.internal.maps;
+
+import java.util.Iterator;
+import java.util.Map;
+
+final class zzbs extends zzbo {
+    private final transient zzbn zza;
+    /* access modifiers changed from: private */
+    public final transient Object[] zzb;
+    /* access modifiers changed from: private */
+    public final transient int zzc;
+
+    public zzbs(zzbn zzbn, Object[] objArr, int i, int i2) {
+        this.zza = zzbn;
+        this.zzb = objArr;
+        this.zzc = i2;
+    }
+
+    public final boolean contains(Object obj) {
+        if (obj instanceof Map.Entry) {
+            Map.Entry entry = (Map.Entry) obj;
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            if (value == null || !value.equals(this.zza.get(key))) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public final /* synthetic */ Iterator iterator() {
+        return zzg().listIterator(0);
+    }
+
+    public final int size() {
+        return this.zzc;
+    }
+
+    public final int zza(Object[] objArr, int i) {
+        return zzg().zza(objArr, 0);
+    }
+
+    public final zzbz zzd() {
+        return zzg().listIterator(0);
+    }
+
+    public final zzbk zzh() {
+        return new zzbr(this);
+    }
+}

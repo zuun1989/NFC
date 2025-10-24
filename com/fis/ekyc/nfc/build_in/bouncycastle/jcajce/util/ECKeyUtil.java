@@ -1,0 +1,69 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.util;
+
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.ASN1ObjectIdentifier;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.ASN1OctetString;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x9.ECNamedCurveTable;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x9.X962Parameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x9.X9ECParameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x9.X9ECPoint;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.ec.CustomNamedCurves;
+import com.fis.ekyc.nfc.build_in.bouncycastle.math.ec.ECCurve;
+import java.io.IOException;
+import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+
+public class ECKeyUtil {
+
+    public static class ECPublicKeyWithCompression implements ECPublicKey {
+        private final ECPublicKey ecPublicKey;
+
+        public ECPublicKeyWithCompression(ECPublicKey eCPublicKey) {
+            this.ecPublicKey = eCPublicKey;
+        }
+
+        public String getAlgorithm() {
+            return this.ecPublicKey.getAlgorithm();
+        }
+
+        public byte[] getEncoded() {
+            ECCurve eCCurve;
+            SubjectPublicKeyInfo instance = SubjectPublicKeyInfo.getInstance(this.ecPublicKey.getEncoded());
+            X962Parameters instance2 = X962Parameters.getInstance(instance.getAlgorithm().getParameters());
+            if (instance2.isNamedCurve()) {
+                ASN1ObjectIdentifier aSN1ObjectIdentifier = (ASN1ObjectIdentifier) instance2.getParameters();
+                X9ECParameters byOID = CustomNamedCurves.getByOID(aSN1ObjectIdentifier);
+                if (byOID == null) {
+                    byOID = ECNamedCurveTable.getByOID(aSN1ObjectIdentifier);
+                }
+                eCCurve = byOID.getCurve();
+            } else if (!instance2.isImplicitlyCA()) {
+                eCCurve = X9ECParameters.getInstance(instance2.getParameters()).getCurve();
+            } else {
+                throw new IllegalStateException("unable to identify implictlyCA");
+            }
+            try {
+                return new SubjectPublicKeyInfo(instance.getAlgorithm(), ASN1OctetString.getInstance(new X9ECPoint(eCCurve.decodePoint(instance.getPublicKeyData().getOctets()), true).toASN1Primitive()).getOctets()).getEncoded();
+            } catch (IOException e) {
+                throw new IllegalStateException("unable to encode EC public key: " + e.getMessage());
+            }
+        }
+
+        public String getFormat() {
+            return this.ecPublicKey.getFormat();
+        }
+
+        public ECParameterSpec getParams() {
+            return this.ecPublicKey.getParams();
+        }
+
+        public ECPoint getW() {
+            return this.ecPublicKey.getW();
+        }
+    }
+
+    public static ECPublicKey createKeyWithCompression(ECPublicKey eCPublicKey) {
+        return new ECPublicKeyWithCompression(eCPublicKey);
+    }
+}

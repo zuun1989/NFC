@@ -1,0 +1,5 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.crypto;
+
+public interface StatelessProcessing {
+    BlockCipher newInstance();
+}

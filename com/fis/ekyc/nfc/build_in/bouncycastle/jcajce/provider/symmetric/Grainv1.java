@@ -1,0 +1,47 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.symmetric;
+
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.CipherKeyGenerator;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.engines.Grainv1Engine;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.config.ConfigurableProvider;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.symmetric.util.BaseKeyGenerator;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.symmetric.util.BaseStreamCipher;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.symmetric.util.IvAlgorithmParameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.jcajce.provider.util.AlgorithmProvider;
+
+public final class Grainv1 {
+
+    public static class AlgParams extends IvAlgorithmParameters {
+        public String engineToString() {
+            return "Grainv1 IV";
+        }
+    }
+
+    public static class Base extends BaseStreamCipher {
+        public Base() {
+            super(new Grainv1Engine(), 8);
+        }
+    }
+
+    public static class KeyGen extends BaseKeyGenerator {
+        public KeyGen() {
+            super("Grainv1", 80, new CipherKeyGenerator());
+        }
+    }
+
+    public static class Mappings extends AlgorithmProvider {
+        private static final String PREFIX = Grainv1.class.getName();
+
+        public void configure(ConfigurableProvider configurableProvider) {
+            StringBuilder sb2 = new StringBuilder();
+            String str = PREFIX;
+            sb2.append(str);
+            sb2.append("$Base");
+            configurableProvider.addAlgorithm("Cipher.Grainv1", sb2.toString());
+            configurableProvider.addAlgorithm("KeyGenerator.Grainv1", str + "$KeyGen");
+            configurableProvider.addAlgorithm("AlgorithmParameters.Grainv1", str + "$AlgParams");
+        }
+    }
+
+    private Grainv1() {
+    }
+}

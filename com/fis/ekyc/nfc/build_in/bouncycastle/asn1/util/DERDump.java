@@ -1,0 +1,18 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.asn1.util;
+
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.ASN1Encodable;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.ASN1Primitive;
+
+public class DERDump extends ASN1Dump {
+    public static String dumpAsString(ASN1Primitive aSN1Primitive) {
+        StringBuffer stringBuffer = new StringBuffer();
+        ASN1Dump._dumpAsString("", false, aSN1Primitive, stringBuffer);
+        return stringBuffer.toString();
+    }
+
+    public static String dumpAsString(ASN1Encodable aSN1Encodable) {
+        StringBuffer stringBuffer = new StringBuffer();
+        ASN1Dump._dumpAsString("", false, aSN1Encodable.toASN1Primitive(), stringBuffer);
+        return stringBuffer.toString();
+    }
+}

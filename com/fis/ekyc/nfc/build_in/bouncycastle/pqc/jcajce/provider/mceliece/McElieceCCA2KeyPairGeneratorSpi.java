@@ -1,0 +1,45 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.pqc.jcajce.provider.mceliece;
+
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import com.fis.ekyc.nfc.build_in.bouncycastle.crypto.CryptoServicesRegistrar;
+import com.fis.ekyc.nfc.build_in.bouncycastle.pqc.crypto.mceliece.McElieceCCA2KeyGenerationParameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.pqc.crypto.mceliece.McElieceCCA2KeyPairGenerator;
+import com.fis.ekyc.nfc.build_in.bouncycastle.pqc.crypto.mceliece.McElieceCCA2Parameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.pqc.crypto.mceliece.McElieceCCA2PrivateKeyParameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.pqc.crypto.mceliece.McElieceCCA2PublicKeyParameters;
+import com.fis.ekyc.nfc.build_in.bouncycastle.pqc.jcajce.spec.McElieceCCA2KeyGenParameterSpec;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.security.spec.AlgorithmParameterSpec;
+
+public class McElieceCCA2KeyPairGeneratorSpi extends KeyPairGenerator {
+    private McElieceCCA2KeyPairGenerator kpg;
+
+    public McElieceCCA2KeyPairGeneratorSpi() {
+        super("McEliece-CCA2");
+    }
+
+    public KeyPair generateKeyPair() {
+        AsymmetricCipherKeyPair generateKeyPair = this.kpg.generateKeyPair();
+        return new KeyPair(new BCMcElieceCCA2PublicKey((McElieceCCA2PublicKeyParameters) generateKeyPair.getPublic()), new BCMcElieceCCA2PrivateKey((McElieceCCA2PrivateKeyParameters) generateKeyPair.getPrivate()));
+    }
+
+    public void initialize(AlgorithmParameterSpec algorithmParameterSpec, SecureRandom secureRandom) throws InvalidAlgorithmParameterException {
+        this.kpg = new McElieceCCA2KeyPairGenerator();
+        McElieceCCA2KeyGenParameterSpec mcElieceCCA2KeyGenParameterSpec = (McElieceCCA2KeyGenParameterSpec) algorithmParameterSpec;
+        this.kpg.init(new McElieceCCA2KeyGenerationParameters(secureRandom, new McElieceCCA2Parameters(mcElieceCCA2KeyGenParameterSpec.getM(), mcElieceCCA2KeyGenParameterSpec.getT(), mcElieceCCA2KeyGenParameterSpec.getDigest())));
+    }
+
+    public void initialize(AlgorithmParameterSpec algorithmParameterSpec) throws InvalidAlgorithmParameterException {
+        this.kpg = new McElieceCCA2KeyPairGenerator();
+        McElieceCCA2KeyGenParameterSpec mcElieceCCA2KeyGenParameterSpec = (McElieceCCA2KeyGenParameterSpec) algorithmParameterSpec;
+        this.kpg.init(new McElieceCCA2KeyGenerationParameters(CryptoServicesRegistrar.getSecureRandom(), new McElieceCCA2Parameters(mcElieceCCA2KeyGenParameterSpec.getM(), mcElieceCCA2KeyGenParameterSpec.getT(), mcElieceCCA2KeyGenParameterSpec.getDigest())));
+    }
+
+    public void initialize(int i, SecureRandom secureRandom) {
+        this.kpg = new McElieceCCA2KeyPairGenerator();
+        this.kpg.init(new McElieceCCA2KeyGenerationParameters(secureRandom, new McElieceCCA2Parameters()));
+    }
+}

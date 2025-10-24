@@ -1,0 +1,17 @@
+package com.fis.ekyc.nfc.build_in.model;
+
+public enum ResultCode {
+    UNKNOWN,
+    SUCCESS,
+    SUCCESS_WITH_WARNING,
+    CANNOT_OPEN_DEVICE,
+    CARD_NOT_FOUND,
+    WRONG_CITIZEN_ID_CARD,
+    CARD_LOST_CONNECTION,
+    NFC_IS_OFF,
+    ERROR_CODE_UN_SUPPORT_NFC,
+    USER_CANCELED,
+    MISSING_PARAMS,
+    NFC_IS_AVAILABLE,
+    CARD_INCORRECT
+}

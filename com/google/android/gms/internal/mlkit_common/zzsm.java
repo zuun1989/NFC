@@ -1,0 +1,17 @@
+package com.google.android.gms.internal.mlkit_common;
+
+import L4.c;
+import L4.j;
+import X6.b;
+
+public final /* synthetic */ class zzsm implements b {
+    public final /* synthetic */ j zza;
+
+    public /* synthetic */ zzsm(j jVar) {
+        this.zza = jVar;
+    }
+
+    public final Object get() {
+        return this.zza.a("FIREBASE_ML_SDK", byte[].class, c.b("json"), new zzso());
+    }
+}

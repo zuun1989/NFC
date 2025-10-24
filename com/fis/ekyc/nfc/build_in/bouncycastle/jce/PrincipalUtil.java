@@ -1,0 +1,37 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.jce;
+
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.ASN1Primitive;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x509.TBSCertList;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x509.TBSCertificateStructure;
+import com.fis.ekyc.nfc.build_in.bouncycastle.asn1.x509.X509Name;
+import java.io.IOException;
+import java.security.cert.CRLException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
+
+public class PrincipalUtil {
+    public static X509Principal getIssuerX509Principal(X509Certificate x509Certificate) throws CertificateEncodingException {
+        try {
+            return new X509Principal(X509Name.getInstance(TBSCertificateStructure.getInstance(ASN1Primitive.fromByteArray(x509Certificate.getTBSCertificate())).getIssuer()));
+        } catch (IOException e) {
+            throw new CertificateEncodingException(e.toString());
+        }
+    }
+
+    public static X509Principal getSubjectX509Principal(X509Certificate x509Certificate) throws CertificateEncodingException {
+        try {
+            return new X509Principal(X509Name.getInstance(TBSCertificateStructure.getInstance(ASN1Primitive.fromByteArray(x509Certificate.getTBSCertificate())).getSubject()));
+        } catch (IOException e) {
+            throw new CertificateEncodingException(e.toString());
+        }
+    }
+
+    public static X509Principal getIssuerX509Principal(X509CRL x509crl) throws CRLException {
+        try {
+            return new X509Principal(X509Name.getInstance(TBSCertList.getInstance(ASN1Primitive.fromByteArray(x509crl.getTBSCertList())).getIssuer()));
+        } catch (IOException e) {
+            throw new CRLException(e.toString());
+        }
+    }
+}

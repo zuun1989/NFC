@@ -1,0 +1,29 @@
+package com.fis.ekyc.nfc.build_in.bouncycastle.jcajce;
+
+import com.fis.ekyc.nfc.build_in.bouncycastle.util.Arrays;
+import javax.crypto.interfaces.PBEKey;
+
+public class PKCS12KeyWithParameters extends PKCS12Key implements PBEKey {
+    private final int iterationCount;
+    private final byte[] salt;
+
+    public PKCS12KeyWithParameters(char[] cArr, byte[] bArr, int i) {
+        super(cArr);
+        this.salt = Arrays.clone(bArr);
+        this.iterationCount = i;
+    }
+
+    public int getIterationCount() {
+        return this.iterationCount;
+    }
+
+    public byte[] getSalt() {
+        return this.salt;
+    }
+
+    public PKCS12KeyWithParameters(char[] cArr, boolean z, byte[] bArr, int i) {
+        super(cArr, z);
+        this.salt = Arrays.clone(bArr);
+        this.iterationCount = i;
+    }
+}

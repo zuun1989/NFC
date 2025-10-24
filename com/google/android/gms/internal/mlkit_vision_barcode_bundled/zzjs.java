@@ -1,0 +1,39 @@
+package com.google.android.gms.internal.mlkit_vision_barcode_bundled;
+
+public final class zzjs extends zzeh implements zzfn {
+    /* access modifiers changed from: private */
+    public static final zzjs zzb;
+    private int zzd;
+    private int zze;
+    private int zzf;
+    private String zzg = "";
+
+    static {
+        zzjs zzjs = new zzjs();
+        zzb = zzjs;
+        zzeh.zzV(zzjs.class, zzjs);
+    }
+
+    private zzjs() {
+    }
+
+    public final Object zzg(int i, Object obj, Object obj2) {
+        int i2 = i - 1;
+        if (i2 == 0) {
+            return (byte) 1;
+        }
+        if (i2 == 2) {
+            return zzeh.zzS(zzb, "\u0001\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001င\u0000\u0002᠌\u0001\u0003ဈ\u0002", new Object[]{"zzd", "zze", "zzf", zzjq.zza, "zzg"});
+        } else if (i2 == 3) {
+            return new zzjs();
+        } else {
+            if (i2 == 4) {
+                return new zzjr((zzhi) null);
+            }
+            if (i2 != 5) {
+                return null;
+            }
+            return zzb;
+        }
+    }
+}
